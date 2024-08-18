@@ -29,10 +29,14 @@ app.post('/encode', (req, res) => {
             break;
         case 'vigenere':
             if (!keyword) {
-                return res.status(400).json({ error: 'Keyword is required for the Vigenere cipher' });
+                return res.status(400).json({ error: 'Keyword is required for Vigenère cipher' });
             }
             const encodedVigenere = vigenereCipher(data, keyword);
             res.json({ encodedData: encodedVigenere });
+            break;
+        case 'rot13':
+            const encodedROT13 = rot13Cipher(data);
+            res.json({ encodedData: encodedROT13 });
             break;
         default:
             res.status(400).json({ error: 'Unsupported cipher type' });
@@ -64,10 +68,14 @@ app.post('/decode', (req, res) => {
             break;
         case 'vigenere':
             if (!keyword) {
-                return res.status(400).json({ error: 'Keyword is required for vigenere cipher' });
+                return res.status(400).json({ error: 'Keyword is required for Vigenère cipher' });
             }
             const decodedVigenere = vigenereCipher(encodedData, keyword, true);
             res.json({ decodedData: decodedVigenere });
+            break;
+        case 'rot13':
+            const decodedROT13 = rot13Cipher(encodedData);
+            res.json({ decodedData: decodedROT13 });
             break;
         default:
             res.status(400).json({ error: 'Unsupported cipher type' });
@@ -116,6 +124,11 @@ function vigenereCipher(text, keyword, decrypt = false) {
         })
         .join('');
 }
+
+function rot13Cipher(text) {
+    return caesarCipher(text, 13);
+}
+
 app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).send('Something went wrong please try again later. Thank you');
