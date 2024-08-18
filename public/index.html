@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encrypt App</title>
+</head>
+<body>
+    <div class="container">
+        <h1>BASE64 Encryption and Decryption</h1>
+        
+        <h2>Encode</h2>
+        <textarea id="encodeInput" placeholder="Enter text to encode..."></textarea>
+        <button onclick="encodeData()">Encode</button>
+        <div class="result" id="encodeResult"></div>
+        
+        <h2>Decode</h2>
+        <textarea id="decodeInput" placeholder="Enter BASE64 encoded text..."></textarea>
+        <button onclick="decodeData()">Decode</button>
+        <div class="result" id="decodeResult"></div>
+    </div>
+    
+    <script>
+        async function encodeData() {
+            const data = document.getElementById('encodeInput').value;
+            const response = await fetch('/encode', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ data })
+            });
+            const result = await response.json();
+            document.getElementById('encodeResult').textContent = result.encodedData;
+        }
+
+        async function decodeData() {
+            const encodedData = document.getElementById('decodeInput').value;
+            const response = await fetch('/decode', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ encodedData })
+            });
+            const result = await response.json();
+            document.getElementById('decodeResult').textContent = result.decodedData;
+        }
+    </script>
+</body>
+</html>
