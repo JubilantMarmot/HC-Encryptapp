@@ -38,6 +38,13 @@ app.post('/encode', (req, res) => {
             const encodedROT13 = rot13Cipher(data);
             res.json({ encodedData: encodedROT13 });
             break;
+        case 'playfair':
+            if (!keyword) {
+                return res.status(400).json({ error: 'Keyword is required for Playfair cipher' });
+            }
+            const encodedPlayfair = playfairCipher(data, keyword);
+            res.json({ encodedData: encodedPlayfair });
+            break;
         default:
             res.status(400).json({ error: 'Unsupported cipher type' });
     }
@@ -76,6 +83,13 @@ app.post('/decode', (req, res) => {
         case 'rot13':
             const decodedROT13 = rot13Cipher(encodedData);
             res.json({ decodedData: decodedROT13 });
+            break;
+        case 'playfair':
+            if (!keyword) {
+                return res.status(400).json({ error: 'Keyword is required for Playfair cipher' });
+            }
+            const decodedPlayfair = playfairCipher(encodedData, keyword, true);
+            res.json({ decodedData: decodedPlayfair });
             break;
         default:
             res.status(400).json({ error: 'Unsupported cipher type' });
@@ -127,6 +141,75 @@ function vigenereCipher(text, keyword, decrypt = false) {
 
 function rot13Cipher(text) {
     return caesarCipher(text, 13);
+}
+
+function playfairCipher(text, keyword, decrypt = false) {
+    const cleanedKeyword = keyword.toUpperCase().replace(/[^A-Z]/g, '').replace(/J/g, 'I');
+    const matrix = createPlayfairMatrix(cleanedKeyword);
+    const cleanedText = text.toUpperCase().replace(/[^A-Z]/g, '').replace(/J/g, 'I');
+
+    const digraphs = createDigraphs(cleanedText);
+    const result = digraphs.map(pair => {
+        const [a, b] = pair;
+        const [rowA, colA] = findPosition(a, matrix);
+        const [rowB, colB] = findPosition(b, matrix);
+
+        if (rowA === rowB) {
+            return decrypt
+                ? matrix[rowA][(colA - 1 + 5) % 5] + matrix[rowB][(colB - 1 + 5) % 5]
+                : matrix[rowA][(colA + 1) % 5] + matrix[rowB][(colB + 1) % 5];
+        }
+        if (colA === colB) {
+            return decrypt
+                ? matrix[(rowA - 1 + 5) % 5][colA] + matrix[(rowB - 1 + 5) % 5][colB]
+                : matrix[(rowA + 1) % 5][colA] + matrix[(rowB + 1) % 5][colB];
+        }
+        return decrypt
+            ? matrix[rowA][colB] + matrix[rowB][colA]
+            : matrix[rowA][colB] + matrix[rowB][colA];
+    });
+
+    return result.join('');
+}
+
+function createPlayfairMatrix(keyword) {
+    const matrix = [];
+    const seen = new Set();
+    for (const char of keyword) {
+        if (!seen.has(char)) {
+            seen.add(char);
+            matrix.push(char);
+        }
+    }
+    for (let char = 'A'.charCodeAt(0); char <= 'Z'.charCodeAt(0); char++) {
+        const letter = String.fromCharCode(char);
+        if (!seen.has(letter) && letter !== 'J') {
+            matrix.push(letter);
+        }
+    }
+    return Array.from({ length: 5 }, (_, i) => matrix.slice(i * 5, (i + 1) * 5));
+}
+
+function createDigraphs(text) {
+    const digraphs = [];
+    for (let i = 0; i < text.length; i += 2) {
+        let pair = text[i] + (text[i + 1] || 'X');
+        if (pair[0] === pair[1]) {
+            pair = pair[0] + 'X';
+        }
+        digraphs.push(pair);
+    }
+    return digraphs;
+}
+
+function findPosition(letter, matrix) {
+    for (let row = 0; row < 5; row++) {
+        const col = matrix[row].indexOf(letter);
+        if (col !== -1) {
+            return [row, col];
+        }
+    }
+    return [-1, -1];
 }
 
 app.use((err, req, res, next) => {
