@@ -14,13 +14,14 @@ const { railFenceEncrypt, railFenceDecrypt } = require('./ciphers/railfenceCiphe
 const { scytaleEncrypt, scytaleDecrypt } = require('./ciphers/scytaleCipher');
 const { baconianEncrypt, baconianDecrypt } = require('./ciphers/baconianCipher');
 const { gronsfeldEncrypt, gronsfeldDecrypt } = require('./ciphers/gronsfeldCipher');
+const { homophonicEncrypt, homophonicDecrypt } = require('./ciphers/homophonicCipher');
 
 app.get('/', (req, res) => {
     res.send('test');
 });
 
 app.get('/ciphers', (req, res) => {
-    const ciphers = ['base64', 'caesar', 'atbash', 'vigenere', 'rot13', 'playfair', 'railfence', 'scytale', 'baconian', 'gronsfeld'];
+    const ciphers = ['base64', 'caesar', 'atbash', 'vigenere', 'rot13', 'playfair', 'railfence', 'scytale', 'baconian', 'gronsfeld', 'homophonic'];
     res.json({ ciphers });
 });
 
@@ -81,6 +82,10 @@ app.post('/encode', (req, res) => {
             }
             const encodedGronsfeld = gronsfeldEncrypt(data, keyword);
             res.json({ encodedData: encodedGronsfeld });
+            break;
+        case 'homophonic':
+            const encodedHomophonic = homophonicEncrypt(data);
+            res.json({ encodedData: encodedHomophonic });
             break;
         default:
             res.status(400).json({ error: 'Unsupported cipher type' });
@@ -148,6 +153,10 @@ app.post('/decode', (req, res) => {
             }
             const decodedGronsfeld = gronsfeldDecrypt(encodedData, keyword);
             res.json({ decodedData: decodedGronsfeld });
+            break;
+        case 'homophonic':
+            const decodedHomophonic = homophonicDecrypt(encodedData);
+            res.json({ decodedData: decodedHomophonic });
             break;
         default:
             res.status(400).json({ error: 'Unsupported cipher type' });
