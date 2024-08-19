@@ -12,6 +12,8 @@ const { rot13Cipher}  = require('./ciphers/rot13Cipher');
 const { playfairCipher } = require('./ciphers/playfairCipher');
 const { railFenceEncrypt, railFenceDecrypt } = require('./ciphers/railfenceCipher');
 const { scytaleEncrypt, scytaleDecrypt } = require('./ciphers/scytaleCipher');
+const { baconianEncrypt, baconianDecrypt } = require('./ciphers/baconianCipher');
+const { gronsfeldEncrypt, gronsfeldDecrypt } = require('./ciphers/gronsfeldCipher');
 
 app.get('/', (req, res) => {
     res.send('test');
@@ -69,6 +71,17 @@ app.post('/encode', (req, res) => {
             const encodedScytale = scytaleEncrypt(data, scytalediameter);
             res.json({ encodedData: encodedScytale });
             break;
+        case 'baconian':
+            const encodedBaconian = baconianEncrypt(data);
+            res.json({ encodedData: encodedBaconian });
+            break;
+        case 'gronsfeld':
+            if (!keyword) {
+                return res.status(400).json({ error: 'Keyword is required for Gronsfeld cipher' });
+            }
+            const encodedGronsfeld = gronsfeldEncrypt(data, keyword);
+            res.json({ encodedData: encodedGronsfeld });
+            break;
         default:
             res.status(400).json({ error: 'Unsupported cipher type' });
     }
@@ -124,6 +137,17 @@ app.post('/decode', (req, res) => {
             const scytalediameter = 3;
             const decodedScytale = scytaleDecrypt(encodedData, scytalediameter);
             res.json({ decodedData: decodedScytale });
+            break;
+        case 'baconian':
+            const decodedBaconian = baconianDecrypt(encodedData);
+            res.json({ decodedData: decodedBaconian });
+            break;
+        case 'gronsfeld':
+            if (!keyword) {
+                return res.status(400).json({ error: 'Keyword is required for Gronsfeld cipher' });
+            }
+            const decodedGronsfeld = gronsfeldDecrypt(encodedData, keyword);
+            res.json({ decodedData: decodedGronsfeld });
             break;
         default:
             res.status(400).json({ error: 'Unsupported cipher type' });
