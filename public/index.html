@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Encrypt App</title><link rel="stylesheet" href="style.css">
+    <title>Encrypt App</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
@@ -25,26 +26,48 @@
     </div>
     
     <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const response = await fetch('/ciphers');
+                const data = await response.json();
+                const cipherSelects = document.querySelectorAll('select');
+                cipherSelects.forEach(select => {
+                    data.ciphers.forEach(cipher => {
+                        const option = document.createElement('option');
+                        option.value = cipher;
+                        option.textContent = cipher.charAt(0).toUpperCase() + cipher.slice(1);
+                        select.appendChild(option);
+                    });
+                });
+            } catch (error) {
+                console.error('Failed to load ciphers:', error);
+            }
+        });
+
         async function encodeData() {
             const data = document.getElementById('encodeInput').value;
+            const cipher = document.getElementById('encodeCipherSelect').value;
+            const keyword = document.getElementById('encodeKeyword').value;
             const response = await fetch('/encode', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ data })
+                body: JSON.stringify({ data, cipher, keyword })
             });
             const result = await response.json();
-            document.getElementById('encodeResult').textContent = result.encodedData;
+            document.getElementById('encodeResult').textContent = result.encodedData || result.error;
         }
 
         async function decodeData() {
             const encodedData = document.getElementById('decodeInput').value;
+            const cipher = document.getElementById('decodeCipherSelect').value;
+            const keyword = document.getElementById('decodeKeyword').value;
             const response = await fetch('/decode', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ encodedData })
+                body: JSON.stringify({ encodedData, cipher, keyword })
             });
             const result = await response.json();
-            document.getElementById('decodeResult').textContent = result.decodedData;
+            document.getElementById('decodeResult').textContent = result.decodedData || result.error;
         }
     </script>
 </body>
