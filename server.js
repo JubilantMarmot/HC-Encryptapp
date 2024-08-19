@@ -10,13 +10,15 @@ const { atbashCipher } = require('./ciphers/atbashCipher');
 const { vigenereCipher } = require('./ciphers/vigenereCipher');
 const { rot13Cipher}  = require('./ciphers/rot13Cipher');
 const { playfairCipher } = require('./ciphers/playfairCipher');
+const { railFenceEncrypt, railFenceDecrypt } = require('./ciphers/railfenceCipher');
+const { scytaleEncrypt, scytaleDecrypt } = require('./ciphers/scytaleCipher');
 
 app.get('/', (req, res) => {
     res.send('test');
 });
 
 app.get('/ciphers', (req, res) => {
-    const ciphers = ['base64', 'caesar', 'atbash', 'vigenere', 'rot13', 'playfair'];
+    const ciphers = ['base64', 'caesar', 'atbash', 'vigenere', 'rot13', 'playfair', 'railfence', 'scytale'];
     res.json({ ciphers });
 });
 
@@ -56,6 +58,16 @@ app.post('/encode', (req, res) => {
             }
             const encodedPlayfair = playfairCipher(data, keyword);
             res.json({ encodedData: encodedPlayfair });
+            break;
+        case 'railfence':
+            const rails = 3;
+            const encodedRailfence = railFenceEncrypt(data, rails);
+            res.json({ encodedData: encodedRailfence });
+            break;
+        case 'scytale':
+            const scytalediameter = 3;
+            const encodedScytale = scytaleEncrypt(data, scytalediameter);
+            res.json({ encodedData: encodedScytale });
             break;
         default:
             res.status(400).json({ error: 'Unsupported cipher type' });
@@ -102,6 +114,16 @@ app.post('/decode', (req, res) => {
             }
             const decodedPlayfair = playfairCipher(encodedData, keyword, true);
             res.json({ decodedData: decodedPlayfair });
+            break;
+        case 'railfence':
+            const rails = 3;
+            const decodedRailfence = railFenceDecrypt(encodedData, rails);
+            res.json({ decodedData: decodedRailfence });
+            break;
+        case 'scytale':
+            const scytalediameter = 3;
+            const decodedScytale = scytaleDecrypt(encodedData, scytalediameter);
+            res.json({ decodedData: decodedScytale });
             break;
         default:
             res.status(400).json({ error: 'Unsupported cipher type' });
