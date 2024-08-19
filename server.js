@@ -20,7 +20,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/ciphers', (req, res) => {
-    const ciphers = ['base64', 'caesar', 'atbash', 'vigenere', 'rot13', 'playfair', 'railfence', 'scytale'];
+    const ciphers = ['base64', 'caesar', 'atbash', 'vigenere', 'rot13', 'playfair', 'railfence', 'scytale', 'baconian', 'gronsfeld'];
     res.json({ ciphers });
 });
 
