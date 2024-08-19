@@ -11,11 +11,15 @@
         
         <h2>Encode</h2>
         <textarea id="encodeInput" placeholder="Enter text to encode..."></textarea>
+        <select id="encodeCipherSelect"></select>
+        <input type="text" id="encodeKeyword" placeholder="Enter keyword (optional)">
         <button onclick="encodeData()">Encode</button>
         <div class="result" id="encodeResult"></div>
         
         <h2>Decode</h2>
-        <textarea id="decodeInput" placeholder="Enter BASE64 encoded text..."></textarea>
+        <textarea id="decodeInput" placeholder="Enter encoded text..."></textarea>
+        <select id="decodeCipherSelect"></select>
+        <input type="text" id="decodeKeyword" placeholder="Enter keyword (optional)">
         <button onclick="decodeData()">Decode</button>
         <div class="result" id="decodeResult"></div>
     </div>
